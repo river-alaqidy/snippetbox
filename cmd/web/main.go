@@ -1,11 +1,19 @@
 package main
 
 import (
+	"flag"
 	"log" // TODO: look into https://pkg.go.dev/go.uber.org/zap
 	"net/http"
 )
 
 func main() {
+	// new command-line flag 'addr', default value ":4000", and short description
+	// value of flag is stored in addr variable at runtime
+	addr := flag.String("addr", ":4000", "HTTP network address")
+	// read command-line flage and assign it to addr variable
+	// call before use addr variable otherwise it will always contian the default value
+	flag.Parse()
+
 	mux := http.NewServeMux()
 
 	// serves files out of specified directory
@@ -20,8 +28,8 @@ func main() {
 	mux.HandleFunc("GET /snippet/create", snippetCreate)
 	mux.HandleFunc("POST /snippet/create", snippetCreatePost)
 
-	log.Print("starting server on :4000")
+	log.Printf("starting server on %s", *addr)
 
-	err := http.ListenAndServe(":4000", mux)
+	err := http.ListenAndServe(*addr, mux)
 	log.Fatal(err)
 }
