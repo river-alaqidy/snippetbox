@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"log" // TODO: look into https://pkg.go.dev/go.uber.org/zap
+	"log/slog" // TODO: look into https://pkg.go.dev/go.uber.org/zap
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -13,6 +14,9 @@ func main() {
 	// read command-line flage and assign it to addr variable
 	// call before use addr variable otherwise it will always contian the default value
 	flag.Parse()
+
+	// initialize new structured logger
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	mux := http.NewServeMux()
 
@@ -28,8 +32,9 @@ func main() {
 	mux.HandleFunc("GET /snippet/create", snippetCreate)
 	mux.HandleFunc("POST /snippet/create", snippetCreatePost)
 
-	log.Printf("starting server on %s", *addr)
+	logger.Info("starting server", "addr", *addr)
 
 	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	logger.Error(err.Error())
+	os.Exit(1)
 }
