@@ -7,6 +7,11 @@ import (
 	"os"
 )
 
+// application struct to hold application-wide dependencies
+type application struct {
+	logger *slog.Logger
+}
+
 func main() {
 	// new command-line flag 'addr', default value ":4000", and short description
 	// value of flag is stored in addr variable at runtime
@@ -18,6 +23,11 @@ func main() {
 	// initialize new structured logger
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
+	// init a new instance of application stuct containing dependencies
+	app := &application{
+		logger: logger,
+	}
+
 	mux := http.NewServeMux()
 
 	// serves files out of specified directory
@@ -27,10 +37,10 @@ func main() {
 	// for matching paths, strip the "/static" prefix before request reaches file server
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	mux.HandleFunc("GET /{$}", home) // Restrict this route to exact matches on / only.
-	mux.HandleFunc("GET /snippet/view/{id}", snippetView)
-	mux.HandleFunc("GET /snippet/create", snippetCreate)
-	mux.HandleFunc("POST /snippet/create", snippetCreatePost)
+	mux.HandleFunc("GET /{$}", app.home) // Restrict this route to exact matches on / only.
+	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
+	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
+	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
 	logger.Info("starting server", "addr", *addr)
 
