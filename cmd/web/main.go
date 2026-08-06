@@ -8,13 +8,16 @@ import (
 	"net/http"
 	"os"
 
+	"snippetbox.riveralaqidy.net/internal/models"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
 // application struct to hold application-wide dependencies
 type application struct {
-	logger *slog.Logger
+	logger   *slog.Logger
+	snippets *models.SnippetModel
 }
 
 // openDB return db connection pool for a given dsn (data source name)
@@ -63,7 +66,8 @@ func main() {
 
 	// init a new instance of application stuct containing dependencies
 	app := &application{
-		logger: logger,
+		logger:   logger,
+		snippets: &models.SnippetModel{DB: db},
 	}
 
 	logger.Info("starting server", "addr", *addr)
