@@ -9,7 +9,7 @@ import (
 // snippet type to hold data for invidual snippet
 // corresponds to fields in talble
 type Snippet struct {
-	Id      int
+	ID      int
 	Title   string
 	Content string
 	Created time.Time
@@ -53,7 +53,7 @@ func (m *SnippetModel) Get(id int) (Snippet, error) {
 	var s Snippet
 
 	// copy values from each field to snippet struct
-	err := row.Scan(&s.Id, &s.Title, &s.Content, &s.Created, &s.Expires)
+	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 	if err != nil {
 		// if query returns no rows
 		if errors.Is(err, sql.ErrNoRows) {
@@ -84,7 +84,7 @@ func (m *SnippetModel) Latest() ([]Snippet, error) {
 	for rows.Next() {
 		var s Snippet
 		// copy values from each field in the row to new snippet
-		err = rows.Scan(&s.Id, &s.Title, &s.Content, &s.Created, &s.Expires)
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 		if err != nil {
 			return nil, err
 		}
