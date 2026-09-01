@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"log/slog" // TODO: look into https://pkg.go.dev/go.uber.org/zap
 	"net/http"
@@ -16,8 +17,9 @@ import (
 
 // application struct to hold application-wide dependencies
 type application struct {
-	logger   *slog.Logger
-	snippets *models.SnippetModel
+	logger        *slog.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 // openDB return db connection pool for a given dsn (data source name)
@@ -64,10 +66,17 @@ func main() {
 	// defer closing of db connection before the main function ends
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	// init a new instance of application stuct containing dependencies
 	app := &application{
-		logger:   logger,
-		snippets: &models.SnippetModel{DB: db},
+		logger:        logger,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	logger.Info("starting server", "addr", *addr)
